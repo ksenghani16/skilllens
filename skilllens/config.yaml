@@ -1,0 +1,26 @@
+# SkillLens settings. Environment variables override the first four:
+#   LLM_BASE_URL, LLM_API_KEY, SKILLLENS_MODEL (and SKILLLENS_TEMPERATURE)
+
+base_url: http://localhost:11434/v1   # Ollama's OpenAI-compatible endpoint
+api_key: ollama                       # Ollama ignores it; hosted providers need a real key
+model: qwen2.5:7b-instruct            # run `ollama list` to see what you have
+
+temperature: 0.2      # used when running skills; repeats differ only by seed
+timeout_s: 180        # per model call
+max_retries: 3        # for timeouts / 429 / 5xx
+retry_wait_s: 1.0
+
+repeats: 3            # k: how many times each case is run per skill version
+min_drop: 0.5         # a case is "regressed" if its pass rate drops by at least this
+recovery_threshold: 0.5   # a cause is "confirmed" if this share of regressed cases recover
+bootstrap_samples: 2000
+seed: 0
+
+max_failures_shown: 4     # failing cases shown to the investigator
+max_output_chars: 500     # truncate model outputs inside prompts
+max_causes: 3
+max_exhaustive_changes: 10  # leave-one-out search is skipped if there are more changes than this
+investigator_attempts: 3  # retries when the model returns invalid JSON
+
+cache_dir: .cache
+runs_dir: runs

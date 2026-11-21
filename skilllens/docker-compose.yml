@@ -1,0 +1,12 @@
+# Runs only SkillLens in Docker. Ollama stays on your computer so it can use your GPU.
+services:
+  skilllens:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"      # only reachable from your own machine
+    env_file: .env                 # copy .env.example to .env first
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # lets the container reach Ollama on the host (Linux too)
+    volumes:
+      - ./runs:/app/runs
+      - ./.cache:/app/.cache

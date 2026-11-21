@@ -1,0 +1,274 @@
+{
+  "cases": [
+    {
+      "id": "mile_5",
+      "input": "Convert 5 mi",
+      "checks": [
+        {
+          "type": "json_valid"
+        },
+        {
+          "type": "json_field_close",
+          "field": "value",
+          "expected": 8046.72,
+          "rel_tol": 0.005
+        },
+        {
+          "type": "json_field_equals",
+          "field": "unit",
+          "expected": "m"
+        }
+      ],
+      "tags": [
+        "length"
+      ]
+    },
+    {
+      "id": "mile_26",
+      "input": "Convert 26.2 mi",
+      "checks": [
+        {
+          "type": "json_valid"
+        },
+        {
+          "type": "json_field_close",
+          "field": "value",
+          "expected": 42164.81,
+          "rel_tol": 0.005
+        },
+        {
+          "type": "json_field_equals",
+          "field": "unit",
+          "expected": "m"
+        }
+      ],
+      "tags": [
+        "length"
+      ]
+    },
+    {
+      "id": "foot_3",
+      "input": "Convert 3 ft",
+      "checks": [
+        {
+          "type": "json_valid"
+        },
+        {
+          "type": "json_field_close",
+          "field": "value",
+          "expected": 0.9144,
+          "rel_tol": 0.005
+        },
+        {
+          "type": "json_field_equals",
+          "field": "unit",
+          "expected": "m"
+        }
+      ],
+      "tags": [
+        "length"
+      ]
+    },
+    {
+      "id": "inch_12",
+      "input": "Convert 12 in",
+      "checks": [
+        {
+          "type": "json_valid"
+        },
+        {
+          "type": "json_field_close",
+          "field": "value",
+          "expected": 0.3048,
+          "rel_tol": 0.005
+        },
+        {
+          "type": "json_field_equals",
+          "field": "unit",
+          "expected": "m"
+        }
+      ],
+      "tags": [
+        "length"
+      ]
+    },
+    {
+      "id": "pound_10",
+      "input": "Convert 10 lb",
+      "checks": [
+        {
+          "type": "json_valid"
+        },
+        {
+          "type": "json_field_close",
+          "field": "value",
+          "expected": 4.5359,
+          "rel_tol": 0.005
+        },
+        {
+          "type": "json_field_equals",
+          "field": "unit",
+          "expected": "kg"
+        }
+      ],
+      "tags": [
+        "mass"
+      ]
+    },
+    {
+      "id": "pound_150",
+      "input": "Convert 150 lb",
+      "checks": [
+        {
+          "type": "json_valid"
+        },
+        {
+          "type": "json_field_close",
+          "field": "value",
+          "expected": 68.0389,
+          "rel_tol": 0.005
+        },
+        {
+          "type": "json_field_equals",
+          "field": "unit",
+          "expected": "kg"
+        }
+      ],
+      "tags": [
+        "mass"
+      ]
+    },
+    {
+      "id": "ounce_16",
+      "input": "Convert 16 oz",
+      "checks": [
+        {
+          "type": "json_valid"
+        },
+        {
+          "type": "json_field_close",
+          "field": "value",
+          "expected": 0.4536,
+          "rel_tol": 0.005
+        },
+        {
+          "type": "json_field_equals",
+          "field": "unit",
+          "expected": "kg"
+        }
+      ],
+      "tags": [
+        "mass"
+      ]
+    },
+    {
+      "id": "fahrenheit_72",
+      "input": "Convert 72 F",
+      "checks": [
+        {
+          "type": "json_valid"
+        },
+        {
+          "type": "json_field_close",
+          "field": "value",
+          "expected": 295.3722,
+          "rel_tol": 0.005
+        },
+        {
+          "type": "json_field_equals",
+          "field": "unit",
+          "expected": "K"
+        }
+      ],
+      "tags": [
+        "temperature"
+      ]
+    },
+    {
+      "id": "fahrenheit_32",
+      "input": "Convert 32 F",
+      "checks": [
+        {
+          "type": "json_valid"
+        },
+        {
+          "type": "json_field_close",
+          "field": "value",
+          "expected": 273.15,
+          "rel_tol": 0.005
+        },
+        {
+          "type": "json_field_equals",
+          "field": "unit",
+          "expected": "K"
+        }
+      ],
+      "tags": [
+        "temperature"
+      ]
+    },
+    {
+      "id": "celsius_100",
+      "input": "Convert 100 C",
+      "checks": [
+        {
+          "type": "json_valid"
+        },
+        {
+          "type": "json_field_close",
+          "field": "value",
+          "expected": 373.15,
+          "rel_tol": 0.005
+        },
+        {
+          "type": "json_field_equals",
+          "field": "unit",
+          "expected": "K"
+        }
+      ],
+      "tags": [
+        "temperature"
+      ]
+    },
+    {
+      "id": "celsius_0",
+      "input": "Convert 0 C",
+      "checks": [
+        {
+          "type": "json_valid"
+        },
+        {
+          "type": "json_field_close",
+          "field": "value",
+          "expected": 273.15,
+          "rel_tol": 0.005
+        },
+        {
+          "type": "json_field_equals",
+          "field": "unit",
+          "expected": "K"
+        }
+      ],
+      "tags": [
+        "temperature"
+      ]
+    },
+    {
+      "id": "unsupported_furlong",
+      "input": "Convert 2 furlong",
+      "checks": [
+        {
+          "type": "json_valid"
+        },
+        {
+          "type": "json_field_equals",
+          "field": "error",
+          "expected": "unsupported unit"
+        }
+      ],
+      "tags": [
+        "edge"
+      ]
+    }
+  ]
+}

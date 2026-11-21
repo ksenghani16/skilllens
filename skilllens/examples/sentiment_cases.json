@@ -1,0 +1,104 @@
+{
+  "cases": [
+    {
+      "id": "case_1",
+      "input": "Thank you, the support team was amazing!",
+      "checks": [
+        {
+          "type": "regex",
+          "expected": "^positive$"
+        }
+      ]
+    },
+    {
+      "id": "case_2",
+      "input": "I love the new design",
+      "checks": [
+        {
+          "type": "regex",
+          "expected": "^positive$"
+        }
+      ]
+    },
+    {
+      "id": "case_3",
+      "input": "Great product, works perfectly",
+      "checks": [
+        {
+          "type": "regex",
+          "expected": "^positive$"
+        }
+      ]
+    },
+    {
+      "id": "case_4",
+      "input": "My order arrived broken and I want a refund",
+      "checks": [
+        {
+          "type": "regex",
+          "expected": "^negative$"
+        }
+      ]
+    },
+    {
+      "id": "case_5",
+      "input": "The app crashes every time I open it",
+      "checks": [
+        {
+          "type": "regex",
+          "expected": "^negative$"
+        }
+      ]
+    },
+    {
+      "id": "case_6",
+      "input": "This is the worst service ever",
+      "checks": [
+        {
+          "type": "regex",
+          "expected": "^negative$"
+        }
+      ]
+    },
+    {
+      "id": "case_7",
+      "input": "Delivery was late again",
+      "checks": [
+        {
+          "type": "regex",
+          "expected": "^negative$"
+        }
+      ]
+    },
+    {
+      "id": "case_8",
+      "input": "What are your opening hours?",
+      "checks": [
+        {
+          "type": "regex",
+          "expected": "^neutral$"
+        }
+      ]
+    },
+    {
+      "id": "case_9",
+      "input": "I placed an order on Monday.",
+      "checks": [
+        {
+          "type": "regex",
+          "expected": "^neutral$"
+        }
+      ]
+    },
+    {
+      "id": "case_10",
+      "input": "How do I change my email address?",
+      "checks": [
+        {
+          "type": "regex",
+          "expected": "^neutral$"
+        }
+      ]
+    }
+  ]
+}

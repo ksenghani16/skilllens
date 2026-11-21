@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SkillLens</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1d2330;--mute:#5d6678;--line:#dfe3ea;--accent:#3b5bdb;--ok:#1f8a4c;--bad:#c92a2a;--warn:#b7791f;--code:#eef1f6;--rm:#fde8e8;--add:#e3f6ea}
+:root[data-theme="dark"]{--bg:#14171d;--card:#1c2029;--text:#e6e9ef;--mute:#9aa3b5;--line:#2e3441;--accent:#7c9cff;--ok:#4cc380;--bad:#ff7b7b;--warn:#e0b252;--code:#252a35;--rm:#3a2226;--add:#1d3527}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--card:#1c2029;--text:#e6e9ef;--mute:#9aa3b5;--line:#2e3441;--accent:#7c9cff;--ok:#4cc380;--bad:#ff7b7b;--warn:#e0b252;--code:#252a35;--rm:#3a2226;--add:#1d3527}}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
+h1{margin:0 0 4px;font-size:26px}h2{margin:0 0 10px;font-size:17px}
+p{margin:6px 0}.mute{color:var(--mute)}.small{font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:720px){.row{grid-template-columns:1fr}}
+label{display:block;font-weight:600;font-size:13px;margin-bottom:4px}
+textarea,input[type=text],input[type=password],input[type=number],select{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit}
+textarea{min-height:230px;font:13px/1.45 ui-monospace,Consolas,monospace;resize:vertical}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--text);padding:8px 14px;border-radius:8px}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button:disabled{opacity:.5;cursor:not-allowed}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:6px;border-bottom:1px solid var(--line);vertical-align:top}
+td input{padding:6px}.x{padding:2px 8px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:8px}
+.flow{list-style:none;margin:0;padding:0}
+.flow li{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.flow li:last-child{border:0}
+.dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;margin-top:2px}
+.running .dot{border-color:var(--accent);animation:pulse 1.1s infinite}.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.failed .dot{background:var(--bad);border-color:var(--bad);color:#fff}.skipped{opacity:.5}.skipped .dot{border-style:dashed}
+@keyframes pulse{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 25%,transparent)}}
+@media(prefers-reduced-motion:reduce){.running .dot{animation:none}}
+.ttl{font-weight:600}.det{font-size:13px;color:var(--accent)}
+.banner{padding:12px 14px;border-radius:10px;font-weight:600;margin-bottom:10px}
+.banner.ok{background:var(--add);color:var(--ok)}.banner.bad{background:var(--rm);color:var(--bad)}.banner.warn{background:var(--code);color:var(--warn)}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid currentColor}
+.pill.confirmed{color:var(--ok)}.pill.rejected{color:var(--bad)}.pill.unverified{color:var(--warn)}
+.rm,.add{font:12.5px/1.4 ui-monospace,Consolas,monospace;padding:3px 8px;border-radius:6px;margin:3px 0;white-space:pre-wrap;word-break:break-word}
+.rm{background:var(--rm)}.add{background:var(--add)}
+.scroll{overflow-x:auto}details summary{cursor:pointer;font-weight:600}
+.err{color:var(--bad);font-weight:600}
+</style>
+</head>
+<body>
+<main>
+<h1>SkillLens</h1>
+<p class="mute">Paste two versions of a skill (instructions for an AI). SkillLens finds what got worse, explains why, and proves it.</p>
+
+<details class="card" open>
+<summary>How it works, in plain words</summary>
+<ol class="small">
+<li><b>Test:</b> every test case is given to the old skill and the new skill, several times each, and each answer is checked.</li>
+<li><b>Compare:</b> a case counts as <i>worse</i> only if it passes much less often with the new skill. One random slip is ignored.</li>
+<li><b>Find the changes:</b> the lines that differ are numbered c1, c2, c3…</li>
+<li><b>Ask the AI:</b> a model guesses which changed line caused the problem. Code double-checks that its answer is consistent.</li>
+<li><b>Prove it:</b> code puts back <i>only that line</i> and re-runs the failing cases. If they recover, the cause is <b>confirmed</b>. If not, it is <b>rejected</b>.</li>
+<li><b>Backup search:</b> if nothing was confirmed, every changed line is tried on its own.</li>
+</ol>
+</details>
+
+<section class="card">
+<h2>1. The two skills</h2>
+<div class="row" style="margin-bottom:10px">
+ <div><label for="ex">Start from an example</label>
+ <select id="ex"><option value="">Choose…</option></select></div>
+</div>
+<div class="row">
+ <div><label for="old">Old skill (the one that worked)</label><textarea id="old" spellcheck="false"></textarea></div>
+ <div><label for="new">New skill (the edited one)</label><textarea id="new" spellcheck="false"></textarea></div>
+</div>
+</section>
+
+<section class="card">
+<h2>2. Test cases</h2>
+<p class="small mute">Each row is a message to give the skill and the answer it should produce. You can write them yourself or let the AI draft them.</p>
+<div class="opts" style="margin:0 0 8px"><div style="grid-column:1/-1"><label for="genex">Example message (recommended): one valid input, so the AI copies the format</label>
+<input type="text" id="genex" placeholder="e.g. days=12 condition=unopened price=80 member=no"></div></div>
+<p><button id="gen" type="button">Generate test cases with AI</button> <span id="genmsg" class="small"></span></p>
+<p class="small mute">The AI only writes the <i>messages</i>. The expected answers are what the <b>old</b> skill answered the same way every time, so the test means “the new skill should behave like the old one”. Read the expected answers: if the old skill was wrong somewhere, that mistake is locked in. Works best for short, fixed-format answers.</p>
+<div class="opts" style="margin:0 0 8px"><div><label for="match">An answer is correct when it…</label>
+<select id="match"><option value="exact">is exactly the expected answer</option><option value="contains">contains the expected text</option></select></div></div>
+<div class="scroll"><table><thead><tr><th>Message given to the skill</th><th style="width:30%">Expected answer</th><th style="width:40px"></th></tr></thead><tbody id="rows"></tbody></table></div>
+<p><button id="addrow" type="button">+ Add test case</button></p>
+<details><summary class="small">Advanced: paste test cases as JSON instead</summary>
+<p class="small mute">Format: <code>{"cases":[{"id":"a","input":"…","checks":[{"type":"json_valid"}]}]}</code>. Check types: json_valid, contains, not_contains, regex, json_field_equals, json_field_close.</p>
+<label><input type="checkbox" id="usejson"> Use this JSON instead of the table</label><textarea id="json" style="min-height:110px" spellcheck="false"></textarea></details>
+</section>
+
+<section class="card">
+<h2>3. Run</h2>
+<div class="opts">
+ <div><label for="mode">Method</label><select id="mode">
+  <option value="full">Full (AI guess + proof + backup search)</option>
+  <option value="investigator_only">AI guess only (no proof)</option>
+  <option value="single_call">Single AI call (simplest baseline)</option>
+  <option value="search_only">Search only (no AI guessing)</option></select></div>
+ <div><label for="rep">Repeats per case</label><input type="number" id="rep" min="1" max="10" value="3"></div>
+ <div><label for="key">API key (shown in your terminal)</label><input type="password" id="key" autocomplete="off"></div>
+</div>
+<p><label style="font-weight:400"><input type="checkbox" id="mock"> Demo mode: use a built-in fake model (no Ollama needed; results are not real)</label></p>
+<p><button class="primary" id="go" type="button">Compare the skills</button> <span id="msg" class="err"></span></p>
+<p class="small mute">With a real local model, expect a few minutes: cases × repeats × 2 model calls.</p>
+</section>
+
+<section class="card" id="flowcard" hidden>
+<h2>What is happening</h2>
+<ol class="flow" id="flow"></ol>
+</section>
+
+<section class="card" id="result" hidden></section>
+</main>
+
+<script>
+const DATA = {"examples": {"rule": {"label": "A rule was changed (complaints now count as neutral)", "old": "# Sentiment Labeler\n\nRead the customer message and answer with exactly one word: positive, negative or neutral.\n\n## Rules\n- Praise, thanks or happiness -> positive\n- Complaints, anger or problems -> negative\n- Questions or plain facts with no feeling -> neutral\n\n## Format\n- Answer in lowercase, with no punctuation and no extra words.\n", "new": "# Sentiment Labeler\n\nLook at the customer message and answer with exactly one word: positive, negative or neutral.\n\n## Labeling rules\n- Praise, thanks or happiness -> positive\n- Complaints, anger or problems -> neutral\n- Questions or plain facts with no feeling -> neutral\n\n## Format\n- Answer in lowercase, with no punctuation and no extra words.\n", "cases": [{"input": "Thank you, the support team was amazing!", "expected": "positive"}, {"input": "I love the new design", "expected": "positive"}, {"input": "Great product, works perfectly", "expected": "positive"}, {"input": "My order arrived broken and I want a refund", "expected": "negative"}, {"input": "The app crashes every time I open it", "expected": "negative"}, {"input": "This is the worst service ever", "expected": "negative"}, {"input": "Delivery was late again", "expected": "negative"}, {"input": "What are your opening hours?", "expected": "neutral"}, {"input": "I placed an order on Monday.", "expected": "neutral"}, {"input": "How do I change my email address?", "expected": "neutral"}], "example": "I love this app, thank you!"}, "format": {"label": "The format rule was removed", "old": "# Sentiment Labeler\n\nRead the customer message and answer with exactly one word: positive, negative or neutral.\n\n## Rules\n- Praise, thanks or happiness -> positive\n- Complaints, anger or problems -> negative\n- Questions or plain facts with no feeling -> neutral\n\n## Format\n- Answer in lowercase, with no punctuation and no extra words.\n", "new": "# Sentiment Labeler\n\nLook at the customer message and answer with exactly one word: positive, negative or neutral.\n\n## Rules\n- Praise, thanks or happiness -> positive\n- Complaints, anger or problems -> negative\n- Questions or plain facts with no feeling -> neutral\n", "cases": [{"input": "Thank you, the support team was amazing!", "expected": "positive"}, {"input": "I love the new design", "expected": "positive"}, {"input": "Great product, works perfectly", "expected": "positive"}, {"input": "My order arrived broken and I want a refund", "expected": "negative"}, {"input": "The app crashes every time I open it", "expected": "negative"}, {"input": "This is the worst service ever", "expected": "negative"}, {"input": "Delivery was late again", "expected": "negative"}, {"input": "What are your opening hours?", "expected": "neutral"}, {"input": "I placed an order on Monday.", "expected": "neutral"}, {"input": "How do I change my email address?", "expected": "neutral"}], "example": "I love this app, thank you!"}, "harmless": {"label": "Only harmless rewording (should find no problem)", "old": "# Sentiment Labeler\n\nRead the customer message and answer with exactly one word: positive, negative or neutral.\n\n## Rules\n- Praise, thanks or happiness -> positive\n- Complaints, anger or problems -> negative\n- Questions or plain facts with no feeling -> neutral\n\n## Format\n- Answer in lowercase, with no punctuation and no extra words.\n", "new": "# Sentiment Labeler\n\nLook at the customer message and answer with exactly one word: positive, negative or neutral.\n\n## Labeling rules\n- Praise, thanks or happiness -> positive\n- Complaints, anger or problems -> negative\n- Questions or plain facts with no feeling -> neutral\n\n## Format\n- Answer in lowercase, with no punctuation and no extra words.\n", "cases": [{"input": "Thank you, the support team was amazing!", "expected": "positive"}, {"input": "I love the new design", "expected": "positive"}, {"input": "Great product, works perfectly", "expected": "positive"}, {"input": "My order arrived broken and I want a refund", "expected": "negative"}, {"input": "The app crashes every time I open it", "expected": "negative"}, {"input": "This is the worst service ever", "expected": "negative"}, {"input": "Delivery was late again", "expected": "negative"}, {"input": "What are your opening hours?", "expected": "neutral"}, {"input": "I placed an order on Monday.", "expected": "neutral"}, {"input": "How do I change my email address?", "expected": "neutral"}], "example": "I love this app, thank you!"}, "hard": {"label": "HARD: Support Ticket Router (5 edits, 2 real bugs, no test cases: generate them)", "old": "# Support Ticket Router\n\nRead one customer ticket and route it. Reply with a JSON object in exactly this shape:\n{\"team\": \"<billing|technical|account|sales>\", \"priority\": \"<low|medium|high>\"}\n\n## Team rules\n- Charges, refunds, invoices or payment failures -> billing\n- Errors, crashes, bugs or slow performance -> technical\n- Login problems, password resets, or changing an email or name -> account\n- Pricing questions, upgrades or demos -> sales\n- If a ticket fits two teams, choose the team named first in the rules above.\n\n## Priority rules\n- high: the customer cannot use the product at all, or money was taken wrongly\n- medium: a feature is broken but there is a workaround\n- low: questions and small requests\n- A ticket that mentions \"legal\" or \"lawyer\" is always high priority.\n\n## Format\n- Output only the JSON object, with no other text.\n", "new": "# Support Ticket Router\n\nRead a single customer ticket and decide where it goes. Reply with a JSON object in exactly this shape:\n{\"team\": \"<billing|technical|account|sales>\", \"priority\": \"<low|medium|high>\"}\n\n## Team rules\n- Charges, refunds, invoices or payment failures -> billing\n- Errors, crashes, bugs or slow performance -> technical\n- Login problems, password resets, or changing an email or name -> account\n- Pricing questions, upgrades or demos -> sales\n- If a ticket fits two teams, choose the team named last in the rules above.\n\n## Priority rules\n- high: the customer cannot use the product at all, or money was taken wrongly\n- medium: a feature is broken but there is a workaround\n- low: questions and small requests\n- A ticket that mentions \"legal\" or \"lawyer\" is always medium priority.\n\n## Output format\n- Output only the JSON object, with no other text.\n- Use double quotes for all keys and text values.\n", "cases": [], "example": "I was charged twice for my subscription and now I cannot log in"}, "refund": {"label": "HARD: Refund Decider (5 edits, 2 bugs, 17 ready test cases)", "old": "# Refund Decider\n\nYou get one refund request in this form: days=<days since purchase> condition=<unopened|opened|defective> price=<dollars> member=<yes|no>\nReply with exactly one word: full, half, deny or manager.\n\n## Rules (apply them in this order and stop at the first one that matches)\n1. If condition is defective -> full, whatever the days or price.\n2. If days is more than 60 -> deny.\n3. If price is more than 500 -> manager.\n4. If condition is unopened and days is 30 or fewer -> full.\n5. If condition is unopened and days is more than 30 -> half.\n6. If condition is opened and member is yes and days is 30 or fewer -> half.\n7. Anything else -> deny.\n\n## Format\n- Lowercase, one word, no punctuation.\n", "new": "# Refund Decider\n\nYou will receive one refund request written like this: days=<days since purchase> condition=<unopened|opened|defective> price=<dollars> member=<yes|no>\nReply with exactly one word: full, half, deny or manager.\n\n## Rules (apply them in this order and stop at the first one that matches)\n1. If days is more than 60 -> deny.\n2. If condition is defective -> full, whatever the days or price.\n3. If price is more than 500 -> manager.\n4. If condition is unopened and days is fewer than 30 -> full.\n5. If condition is unopened and days is more than 30 -> half.\n6. If condition is opened and member is yes and days is 30 or fewer -> half.\n7. Anything else -> deny.\n\n## Output\n- Lowercase, one word, no punctuation.\n- Never add an explanation.\n", "cases": [{"input": "days=12 condition=unopened price=80 member=no", "expected": "full"}, {"input": "days=30 condition=unopened price=80 member=no", "expected": "full"}, {"input": "days=31 condition=unopened price=80 member=no", "expected": "half"}, {"input": "days=45 condition=unopened price=120 member=yes", "expected": "half"}, {"input": "days=61 condition=unopened price=80 member=yes", "expected": "deny"}, {"input": "days=60 condition=unopened price=80 member=no", "expected": "half"}, {"input": "days=10 condition=opened price=60 member=yes", "expected": "half"}, {"input": "days=30 condition=opened price=60 member=yes", "expected": "half"}, {"input": "days=31 condition=opened price=60 member=yes", "expected": "deny"}, {"input": "days=10 condition=opened price=60 member=no", "expected": "deny"}, {"input": "days=20 condition=defective price=40 member=no", "expected": "full"}, {"input": "days=90 condition=defective price=40 member=no", "expected": "full"}, {"input": "days=75 condition=defective price=900 member=yes", "expected": "full"}, {"input": "days=15 condition=unopened price=501 member=no", "expected": "manager"}, {"input": "days=20 condition=unopened price=500 member=no", "expected": "full"}, {"input": "days=25 condition=opened price=900 member=yes", "expected": "manager"}, {"input": "days=30 condition=unopened price=300 member=yes", "expected": "full"}], "example": "days=12 condition=unopened price=80 member=no"}}};
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const STAGES = [
+ {id:"run_old", t:"Run the old skill", w:"Gives every test case to the old skill several times and checks each answer."},
+ {id:"run_new", t:"Run the new skill", w:"Does the same with the new skill."},
+ {id:"compare", t:"Compare", w:"A case is “worse” only if it passes much less often. A single slip is treated as noise."},
+ {id:"behavior", t:"Describe the changes", w:"Numbers the changed lines (c1, c2…) and summarises how the answers changed."},
+ {id:"investigate", t:"Ask the AI for a cause", w:"The model names the changed line it blames and quotes it. Code rejects answers that do not match."},
+ {id:"verify", t:"Prove it", w:"Puts back only the blamed line and re-runs the failing cases. Recovered = confirmed."},
+ {id:"search", t:"Backup search", w:"If nothing was confirmed, tries putting back each changed line on its own."},
+ {id:"report", t:"Report", w:"Collects the result below."}
+];
+let pollTimer = null, activeCases = [];
+
+function store(k, v){ try{ v===undefined ? sessionStorage.getItem(k) : sessionStorage.setItem(k, v); }catch(e){} }
+function load(k){ try{ return sessionStorage.getItem(k) || ""; }catch(e){ return ""; } }
+
+function addRow(input="", expected="", checks=null){
+  const tr = document.createElement("tr");
+  if (checks) tr.dataset.checks = JSON.stringify(checks);
+  tr.innerHTML = '<td><input type="text" class="in"></td><td><input type="text" class="ex"></td><td><button class="x" type="button" title="Remove">×</button></td>';
+  tr.querySelector(".in").value = input; tr.querySelector(".ex").value = expected;
+  tr.querySelector(".x").onclick = () => tr.remove();
+  tr.querySelector(".ex").oninput = () => { delete tr.dataset.checks; };   // edited by hand: use the simple match instead
+  $("rows").appendChild(tr);
+}
+function getCases(){
+  if ($("usejson").checked){
+    const d = JSON.parse($("json").value); return Array.isArray(d) ? d : d.cases;
+  }
+  const out = [];
+  document.querySelectorAll("#rows tr").forEach((tr, i) => {
+    const input = tr.querySelector(".in").value.trim(), exp = tr.querySelector(".ex").value.trim();
+    if (!input || !exp) return;
+    const checks = tr.dataset.checks ? JSON.parse(tr.dataset.checks)
+      : [ $("match").value === "exact" ? {type:"regex", expected:"^"+escRe(exp)+"$"} : {type:"contains", expected:exp} ];
+    out.push({id:"case_"+(out.length+1), input, checks});
+  });
+  return out;
+}
+function renderFlow(st){
+  $("flow").innerHTML = STAGES.map((s,i) => {
+    const x = st[s.id], mark = x.state==="done"?"✓":x.state==="failed"?"!":i+1;
+    return `<li class="${x.state}"><div class="dot">${mark}</div><div><div class="ttl">${esc(s.t)}</div><div class="small mute">${esc(s.w)}</div>${x.detail?`<div class="det">${esc(x.detail)}</div>`:""}</div></li>`;
+  }).join("");
+}
+function stagesFrom(events, status, report){
+  const st = Object.fromEntries(STAGES.map(s => [s.id, {state:"waiting", detail:""}]));
+  let inSearch = false, verified = 0;
+  for (const e of events){
+    const c = e.component;
+    if (c==="runner.start" && (e.label==="old"||e.label==="new")) st[e.label==="old"?"run_old":"run_new"].state = "running";
+    else if (c==="runner.progress" && (e.label==="old"||e.label==="new")) st[e.label==="old"?"run_old":"run_new"].detail = `${e.done} of ${e.total} cases`;
+    else if (c==="runner.end" && (e.label==="old"||e.label==="new")) st[e.label==="old"?"run_old":"run_new"].state = "done";
+    else if (c==="comparator"){ st.compare.state="done"; st.compare.detail = e.regressed.length ? `${e.regressed.length} case(s) got worse` : "nothing got worse"; }
+    else if (c==="behavior"){ st.behavior.state="done"; st.behavior.detail = `${e.changes} changed region(s)`; }
+    else if (c==="investigator.start") st.investigate.state="running";
+    else if (c==="investigator.rejected") st.investigate.detail = `answer rejected by the checker, retry ${e.attempt}`;
+    else if (c==="investigator.end") st.investigate.state="done";
+    else if (c==="search.start"){ inSearch = true; verified = 0; st.search.state="running"; }
+    else if (c==="verifier.start"){ st[inSearch?"search":"verify"].state="running"; }
+    else if (c==="verifier.result"){ verified++; const k = inSearch?"search":"verify"; st[k].detail = `${verified} tested`; }
+  }
+  if (status){
+    const mode = report ? report.mode : "";
+    for (const k in st){ if (st[k].state==="running") st[k].state = status==="failed" ? "failed" : "done"; }
+    if (status==="done"){
+      for (const k in st) if (st[k].state==="waiting") st[k].state = "skipped";
+      st.report.state="done";
+    }
+  }
+  return st;
+}
+async function api(path, opts={}){
+  return fetch(path, {...opts, headers:{"X-API-Key":$("key").value, "Content-Type":"application/json"}});
+}
+async function poll(runId){
+  try{
+    const [e, s] = await Promise.all([api(`/runs/${runId}/events`).then(r=>r.json()), api(`/runs/${runId}`).then(r=>r.json())]);
+    const done = s.state==="done" || s.state==="failed";
+    renderFlow(stagesFrom(e.events||[], done ? s.state : "", s.report));
+    if (done){
+      clearInterval(pollTimer); $("go").disabled = false;
+      if (s.state==="failed") showError(s.error || "The run failed."); else showResult(s.report);
+    }
+  }catch(err){ clearInterval(pollTimer); $("go").disabled = false; showError("Lost contact with the server: "+err.message); }
+}
+function showError(m){ $("result").hidden=false; $("result").innerHTML = `<p class="err">${esc(m)}</p>`; }
+async function start(){
+  $("msg").textContent = ""; $("result").hidden = true;
+  let cases; try{ cases = getCases(); }catch(e){ $("msg").textContent = "Test case JSON is not valid."; return; }
+  if (!$("old").value.trim() || !$("new").value.trim()){ $("msg").textContent = "Paste both skills first."; return; }
+  if (!cases.length){ $("msg").textContent = "Add at least one test case (message and expected answer)."; return; }
+  store("sl_key", $("key").value); activeCases = cases;
+  $("go").disabled = true;
+  const r = await api("/investigate", {method:"POST", body: JSON.stringify({old_skill:$("old").value, new_skill:$("new").value, cases, mode:$("mode").value, repeats:+$("rep").value||3, mock:$("mock").checked})});
+  if (!r.ok){
+    $("go").disabled = false;
+    const t = r.status===401 ? "Wrong API key. Copy the key printed in your terminal." : r.status===503 ? "The server has no API key set." : "The server rejected the request: "+(await r.text()).slice(0,200);
+    $("msg").textContent = t; return;
+  }
+  const {run_id} = await r.json();
+  $("flowcard").hidden = false; renderFlow(stagesFrom([], "", null));
+  $("flowcard").scrollIntoView({behavior:"smooth"});
+  clearInterval(pollTimer); pollTimer = setInterval(() => poll(run_id), 1000); poll(run_id);
+}
+function showResult(r){
+  const inp = Object.fromEntries(activeCases.map(c => [c.id, c.input]));
+  const top = (r.causes||[]).find(c => c.status !== "rejected");
+  let h = "";
+  if (!r.regression_detected) h += `<div class="banner ok">No regression found: the new skill is not clearly worse on any test case.</div>`;
+  else {
+    h += `<div class="banner bad">The new skill is worse on ${r.regressed_case_ids.length} of ${r.case_results.length} test cases.</div>`;
+    if (top){
+      const ch = top.blamed_changes.map(c=>c.id).join(", "), v = top.verification;
+      h += `<p><b>Most likely cause:</b> ${esc(ch)} <span class="pill ${top.status}">${esc(top.status)}</span></p>` +
+        (v ? `<p class="small mute">Putting back only this change made ${v.recovered_case_ids.length} of ${v.tested_case_ids.length} failing cases pass again.</p>` : `<p class="small mute">Not proven: this mode does not run the proof step.</p>`);
+    } else h += `<div class="banner warn">Cause not found: no explanation survived the proof step. The regression itself is real.</div>`;
+  }
+  h += `<h2 style="margin-top:14px">Test cases</h2><div class="scroll"><table><thead><tr><th>Message</th><th>Old skill</th><th>New skill</th><th></th></tr></thead><tbody>` +
+    r.case_results.map(c => `<tr><td>${esc(inp[c.case_id]||c.case_id)}</td><td>${Math.round(c.old_pass_rate*100)}% correct</td><td>${Math.round(c.new_pass_rate*100)}% correct</td><td>${c.status==="regressed"?'<span class="pill rejected">worse</span>':c.status==="improved"?'<span class="pill confirmed">better</span>':'<span class="mute">same</span>'}</td></tr>`).join("") + `</tbody></table></div>`;
+  if ((r.changes||[]).length){
+    const blamed = new Set((top?top.blamed_changes:[]).map(c=>c.id));
+    h += `<h2 style="margin-top:14px">What changed between the skills</h2>` + r.changes.map(c =>
+      `<div><b>${esc(c.id)}</b>${blamed.has(c.id)?' <span class="pill confirmed">likely cause</span>':""}` +
+      c.old_lines.map(l=>`<div class="rm">− ${esc(l)||"(blank line)"}</div>`).join("") + c.new_lines.map(l=>`<div class="add">+ ${esc(l)||"(blank line)"}</div>`).join("") + `</div>`).join("");
+  }
+  if ((r.causes||[]).length){
+    h += `<h2 style="margin-top:14px">Explanations that were tried</h2>` + r.causes.map(c =>
+      `<p><span class="pill ${c.status}">${esc(c.status)}</span> changes ${esc(c.cause.change_ids.join(", "))}: ${esc(c.cause.description)}` +
+      (c.verification ? ` <span class="small mute">(${c.verification.recovered_case_ids.length}/${c.verification.tested_case_ids.length} recovered)</span>` : "") + `</p>`).join("");
+  }
+  if (r.behavior_summary) h += `<details style="margin-top:10px"><summary>How the answers changed</summary><pre class="rm" style="background:var(--code)">${esc(r.behavior_summary)}</pre></details>`;
+  if ((r.notes||[]).length) h += `<p class="small mute">${r.notes.map(esc).join("<br>")}</p>`;
+  h += `<p class="small mute">${r.llm_calls} model calls, ${r.seconds.toFixed(1)} s, method: ${esc(r.mode)}${r.model?`, model: ${esc(r.model)}`:""}. The full report is saved in the runs folder.</p>`;
+  $("result").hidden = false; $("result").innerHTML = h;
+  $("result").scrollIntoView({behavior:"smooth"});
+}
+function loadExample(key){
+  if (!key) return;
+  const ex = DATA.examples[key];
+  $("old").value = ex.old; $("new").value = ex.new;
+  $("rows").innerHTML = ""; (ex.cases || []).forEach(c => addRow(c.input, c.expected));
+  $("usejson").checked = false; $("genex").value = ex.example || "";
+  $("genmsg").textContent = (ex.cases || []).length ? "" : "This example has no test cases yet: press “Generate test cases with AI”.";
+}
+async function generate(){
+  $("genmsg").className = "small"; $("genmsg").textContent = "";
+  if (!$("old").value.trim()){ $("genmsg").textContent = "Paste the old skill first."; return; }
+  store("sl_key", $("key").value); $("gen").disabled = true;
+  $("genmsg").textContent = "Generating… the old skill answers each message several times, so this can take a few minutes on a real model.";
+  try{
+    const r = await api("/generate-cases", {method:"POST", body: JSON.stringify({skill:$("old").value, n:10, repeats:+$("rep").value||3, mock:$("mock").checked, example:$("genex").value})});
+    if (!r.ok){ $("genmsg").className = "small err"; $("genmsg").textContent = r.status===401 ? "Wrong API key. Copy the key printed in your terminal." : (await r.text()).slice(0,300); return; }
+    const d = await r.json();
+    $("rows").innerHTML = ""; d.cases.forEach((c,i) => addRow(c.input, d.expected[i], c.checks));
+    $("usejson").checked = false;
+    $("genmsg").textContent = `Added ${d.cases.length} test cases. ${d.dropped_unstable} message(s) were dropped because the old skill answered them inconsistently. Please read the expected answers.` + (d.warnings && d.warnings.length ? "  ⚠ " + d.warnings.join("  ⚠ ") : "");
+  }catch(e){ $("genmsg").className = "small err"; $("genmsg").textContent = "Could not reach the server: "+e.message; }
+  finally{ $("gen").disabled = false; }
+}
+(function init(){
+  for (const k in DATA.examples){ const o = document.createElement("option"); o.value = k; o.textContent = DATA.examples[k].label; $("ex").appendChild(o); }
+  $("ex").onchange = e => loadExample(e.target.value);
+  $("addrow").onclick = () => addRow();
+  $("go").onclick = start; $("gen").onclick = generate;
+  $("key").value = load("sl_key");
+  $("json").value = JSON.stringify({cases:[{id:"a", input:"Convert 5 mi", checks:[{type:"json_valid"}]}]}, null, 2);
+  loadExample("rule"); $("ex").value = "rule";
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+{
+ "cases": [
+  {
+   "id": "r1",
+   "input": "days=12 condition=unopened price=80 member=no",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^full$"
+    }
+   ]
+  },
+  {
+   "id": "r2",
+   "input": "days=30 condition=unopened price=80 member=no",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^full$"
+    }
+   ]
+  },
+  {
+   "id": "r3",
+   "input": "days=31 condition=unopened price=80 member=no",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^half$"
+    }
+   ]
+  },
+  {
+   "id": "r4",
+   "input": "days=45 condition=unopened price=120 member=yes",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^half$"
+    }
+   ]
+  },
+  {
+   "id": "r5",
+   "input": "days=61 condition=unopened price=80 member=yes",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^deny$"
+    }
+   ]
+  },
+  {
+   "id": "r6",
+   "input": "days=60 condition=unopened price=80 member=no",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^half$"
+    }
+   ]
+  },
+  {
+   "id": "r7",
+   "input": "days=10 condition=opened price=60 member=yes",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^half$"
+    }
+   ]
+  },
+  {
+   "id": "r8",
+   "input": "days=30 condition=opened price=60 member=yes",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^half$"
+    }
+   ]
+  },
+  {
+   "id": "r9",
+   "input": "days=31 condition=opened price=60 member=yes",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^deny$"
+    }
+   ]
+  },
+  {
+   "id": "r10",
+   "input": "days=10 condition=opened price=60 member=no",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^deny$"
+    }
+   ]
+  },
+  {
+   "id": "r11",
+   "input": "days=20 condition=defective price=40 member=no",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^full$"
+    }
+   ]
+  },
+  {
+   "id": "r12",
+   "input": "days=90 condition=defective price=40 member=no",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^full$"
+    }
+   ]
+  },
+  {
+   "id": "r13",
+   "input": "days=75 condition=defective price=900 member=yes",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^full$"
+    }
+   ]
+  },
+  {
+   "id": "r14",
+   "input": "days=15 condition=unopened price=501 member=no",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^manager$"
+    }
+   ]
+  },
+  {
+   "id": "r15",
+   "input": "days=20 condition=unopened price=500 member=no",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^full$"
+    }
+   ]
+  },
+  {
+   "id": "r16",
+   "input": "days=25 condition=opened price=900 member=yes",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^manager$"
+    }
+   ]
+  },
+  {
+   "id": "r17",
+   "input": "days=30 condition=unopened price=300 member=yes",
+   "checks": [
+    {
+     "type": "regex",
+     "expected": "^full$"
+    }
+   ]
+  }
+ ]
+}

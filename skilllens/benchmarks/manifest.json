@@ -1,0 +1,42 @@
+[
+  {
+    "id": "control_distractors_only",
+    "old_skill": "benchmarks/skills/unit_normalizer_v1.md",
+    "new_skill": "benchmarks/skills/injected/control_distractors_only.md",
+    "cases": "benchmarks/cases/unit_normalizer_cases.json",
+    "bug_marker": null,
+    "expects_regression": false
+  },
+  {
+    "id": "b1_remove_fahrenheit_rule",
+    "old_skill": "benchmarks/skills/unit_normalizer_v1.md",
+    "new_skill": "benchmarks/skills/injected/b1_remove_fahrenheit_rule.md",
+    "cases": "benchmarks/cases/unit_normalizer_cases.json",
+    "bug_marker": "(F)",
+    "expects_regression": true
+  },
+  {
+    "id": "b2_wrong_pound_factor",
+    "old_skill": "benchmarks/skills/unit_normalizer_v1.md",
+    "new_skill": "benchmarks/skills/injected/b2_wrong_pound_factor.md",
+    "cases": "benchmarks/cases/unit_normalizer_cases.json",
+    "bug_marker": "(lb)",
+    "expects_regression": true
+  },
+  {
+    "id": "b3_drop_json_only",
+    "old_skill": "benchmarks/skills/unit_normalizer_v1.md",
+    "new_skill": "benchmarks/skills/injected/b3_drop_json_only.md",
+    "cases": "benchmarks/cases/unit_normalizer_cases.json",
+    "bug_marker": "Return only the JSON",
+    "expects_regression": true
+  },
+  {
+    "id": "b4_remove_unsupported_rule",
+    "old_skill": "benchmarks/skills/unit_normalizer_v1.md",
+    "new_skill": "benchmarks/skills/injected/b4_remove_unsupported_rule.md",
+    "cases": "benchmarks/cases/unit_normalizer_cases.json",
+    "bug_marker": "unsupported unit",
+    "expects_regression": true
+  }
+]

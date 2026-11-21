@@ -1,0 +1,15 @@
+# Example only (rename to .yml to enable). Run on a machine that has Ollama, e.g. a self-hosted runner:
+# free GitHub runners are too weak for 7B models.
+name: skill-regression
+on:
+  pull_request:
+    paths: ["skills/**"]
+jobs:
+  check:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - run: pip install -r requirements.txt
+      - run: git show origin/main:skills/my_skill.md > /tmp/old.md
+      - run: python -m skilllens compare /tmp/old.md skills/my_skill.md --cases skills/cases.json --fail-on-regression
